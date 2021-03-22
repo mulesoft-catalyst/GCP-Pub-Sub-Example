@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="gcp-pub-sub-exampleFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP" allowedMethods="POST"/>
+		<byte-array-to-string-transformer doc:name="Byte Array to String"/>
+		<logger message="input payload #[payload]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="project" value="crypto-isotope-269902" doc:name="project-id"/>
+        <set-variable variableName="keyFile" value="key.json" doc:name="keyFile"/>
+        <set-variable variableName="topic-id" value="pub-topic" doc:name="topic-id"/>
+        <component class="google.publisher.PublisherTopic" doc:name="Java"/>
+        <logger message="Message sent Successfully &gt;&gt;&gt;&gt;&gt;&gt;&gt;#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+	<flow name="gcp-pub-sub-exampleFlow1">
+		<poll doc:name="Poll">
+			<fixed-frequency-scheduler frequency="2000"/>
+			<logger message="Poller started &gt;&gt;&gt;&gt;&gt;" level="INFO" doc:name="Logger"/>
+		</poll>
+		<set-variable variableName="project" value="crypto-isotope-269902" doc:name="Copy_of_project-id"/>
+		<set-variable variableName="keyFile" value="key.json" doc:name="Copy_of_keyFile"/>
+		  <set-variable variableName="topic-id" value="pub-topic" doc:name="topic-id"/>
+		<set-variable variableName="subscription_id" value="Sub-client1" doc:name="subscription_id"/>
+		<component class="google.subscriber.SubscriberTopic" doc:name="Java"/>
+		<logger message="REceived the message &gt;&gt;&gt;&gt; #[payload]" level="INFO" doc:name="Logger"/>
+	</flow>
+</mule>
